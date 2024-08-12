@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ma Collection d'Items</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 50px;
+        }
+        .game-icon {
+            display: inline-block;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 24px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        .game-icon:hover {
+            transform: scale(1.1);
+            background-color: #45a049;
+        }
+        .item-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .item {
+            width: 100px;
+            height: 100px;
+            background-color: #2196F3;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        .item:hover {
+            transform: scale(1.1);
+            background-color: #1e88e5;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Bienvenue dans ma collection d'items</h1>
+
+    <div id="home-page">
+        <div class="game-icon" onclick="navigateTo('mm2')">MM2</div>
+        <div class="game-icon" onclick="navigateTo('psx')">PSX</div>
+        <div class="game-icon" onclick="navigateTo('ntm')">NTM</div>
+    </div>
+
+    <div id="items-page" style="display:none;">
+        <h2 id="game-title"></h2>
+        <div class="item-container" id="items-container">
+            <!-- Les items seront ajoutés ici -->
+        </div>
+        <button onclick="goBack()">Retour</button>
+    </div>
+
+    <script>
+        const items = {
+            mm2: ['Item MM2-1', 'Item MM2-2', 'Item MM2-3'],
+            psx: ['Item PSX-1', 'Item PSX-2', 'Item PSX-3'],
+            ntm: ['Item NTM-1', 'Item NTM-2', 'Item NTM-3']
+        };
+
+        function navigateTo(game) {
+            history.pushState({ game: game }, "", "/home/" + game);
+            showItems(game);
+        }
+
+        function showItems(game) {
+            document.getElementById('home-page').style.display = 'none';
+            document.getElementById('items-page').style.display = 'block';
+            document.getElementById('game-title').innerText = "Items pour " + game.toUpperCase();
+
+            const container = document.getElementById('items-container');
+            container.innerHTML = '';
+            items[game].forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerText = item;
+                div.onclick = () => copyToClipboard('bonjour');
+                container.appendChild(div);
+            });
+        }
+
+        function goBack() {
+            history.pushState({}, "", "/home");
+            document.getElementById('home-page').style.display = 'block';
+            document.getElementById('items-page').style.display = 'none';
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copié dans le presse-papier : ' + text);
+            });
+        }
+
+        // Gérer les cas où l'utilisateur navigue avec les boutons "précédent" et "suivant"
+        window.onpopstate = function(event) {
+            if (event.state && event.state.game) {
+                showItems(event.state.game);
+            } else {
+                goBack();
+            }
+        };
+
+        // Charger la bonne page si l'utilisateur entre directement l'URL
+        window.onload = function() {
+            const path = window.location.pathname;
+            if (path === "/home") {
+                document.getElementById('home-page').style.display = 'block';
+                document.getElementById('items-page').style.display = 'none';
+            } else if (path.startsWith("/home/")) {
+                const game = path.split("/")[2];
+                showItems(game);
+            }
+        };
+    </script>
+
+</body>
+</html>
